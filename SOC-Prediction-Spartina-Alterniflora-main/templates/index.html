@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>SOC Prediction Dashboard</title>
+
+<link rel="stylesheet"
+href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+
+<link rel="stylesheet"
+href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
+
+<style>
+
+body{
+background: linear-gradient(to right,#2c5364,#203a43,#0f2027);
+color:white;
+}
+
+.card{
+color:black;
+border-radius:15px;
+}
+
+#map{
+height:400px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container mt-4">
+
+<h2 class="text-center mb-4">
+UAV Soil Organic Carbon Prediction System
+</h2>
+
+<div class="row">
+
+<div class="col-md-8">
+
+<div class="card p-4">
+
+<form method="POST">
+
+<div class="row">
+
+{% for f in features %}
+
+<div class="col-md-6 mb-3">
+
+<label>{{f}}</label>
+
+<input type="range"
+class="form-range"
+min="0"
+max="10"
+step="0.01"
+name="{{f}}"
+oninput="this.nextElementSibling.value = this.value">
+
+<output>5</output>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+<div class="text-center">
+
+<button class="btn btn-primary btn-lg">
+Predict SOC
+</button>
+
+</div>
+
+</form>
+
+</div>
+
+</div>
+
+<div class="col-md-4">
+
+{% if prediction %}
+
+<div class="card p-4 text-center">
+
+<h4>Predicted SOC</h4>
+
+<h1>{{prediction}}</h1>
+
+<p>{{level}}</p>
+
+<div class="progress">
+
+<div class="progress-bar bg-{{color}}"
+style="width: {{prediction*10}}%">
+
+</div>
+
+</div>
+
+<p class="mt-2">
+Confidence: {{confidence}}%
+</p>
+
+</div>
+
+{% endif %}
+
+</div>
+
+</div>
+
+
+<div class="row mt-4">
+
+<div class="col-md-6">
+
+<div class="card p-3">
+
+<h5>Prediction History</h5>
+
+<table class="table">
+
+<tr>
+<th>#</th>
+<th>SOC</th>
+</tr>
+
+{% for h in history %}
+
+<tr>
+<td>{{loop.index}}</td>
+<td>{{h}}</td>
+</tr>
+
+{% endfor %}
+
+</table>
+
+</div>
+
+</div>
+
+
+<div class="col-md-6">
+
+<div class="card p-3">
+
+<h5>SOC Spatial Heatmap</h5>
+
+<div id="map"></div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+var map = L.map('map').setView([20,78],5);
+
+L.tileLayer(
+'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+{maxZoom:18}
+).addTo(map);
+
+var heatData = {{heatmap_data|safe}};
+
+if(heatData.length > 0){
+
+var heat = L.heatLayer(heatData,{
+radius:25
+}).addTo(map);
+
+}
+
+</script>
+
+</body>
+
+</html>
